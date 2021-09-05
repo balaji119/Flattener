@@ -23,9 +23,9 @@ namespace Flattener.Service
       {
          if (route == null) return;
 
-         if(route.Stops == null || route.Stops?.Count == 0)
+         if(!route.HasStops())
          {
-            AddRoute(route.RouteName);
+            AddRoute(route.RouteName, null);
             return;
          }
 
@@ -33,26 +33,26 @@ namespace Flattener.Service
          {
             if (stop == null)
             {
-               AddRoute(route.RouteName);
+               AddRoute(route.RouteName, null);
                continue;
             }
 
-            Flatten(stop.Objects, route, stop);
+            Flatten(route, stop);
          }
       }
 
-      private void Flatten(List<StopObject> objects, Route route, Stop stop)
+      private void Flatten(Route route, Stop stop)
       {
-         if (objects == null || objects.Count == 0)
+         if (!stop.HasObjects())
          {
             AddRoute(route.RouteName!, stop.StopName);
             return;
          }
 
-         objects.ForEach(obj => Flatten(obj, route, stop));
+         stop.Objects!.ForEach(obj => Flatten(route, stop, obj));
       }
 
-      private void Flatten(StopObject obj, Route route, Stop stop)
+      private void Flatten(Route route, Stop stop, StopObject obj)
       {
          if (obj == null)
          {
@@ -69,15 +69,7 @@ namespace Flattener.Service
          });
       }
 
-      private void AddRoute(string? routeName)
-      {
-         _responseOjbects.Add(new ResponseObject
-         {
-            RouteName = routeName
-         });
-      }
-
-      private void AddRoute(string routeName, string stopName)
+      private void AddRoute(string? routeName, string? stopName)
       {
          _responseOjbects.Add(new ResponseObject
          {
